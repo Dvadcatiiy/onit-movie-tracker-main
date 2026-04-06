@@ -3,30 +3,44 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
+    # Указываем, что все команды выполняются внутри папки onit-movie-tracker-main
     defaults:
       run:
-        working-directory: ./onit-movie-tracker-main  # ← добавить эту строку
+        working-directory: onit-movie-tracker-main
     
     steps:
-      - uses: actions/checkout@v4
+      # Шаг 1: Скачать код из репозитория
+      - name: Checkout code
+        uses: actions/checkout@v4
       
+      # Шаг 2: Установить Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          
+          node-version: '20'
+      
+      # Шаг 3: Установить pnpm (так как проект использует pnpm)
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
-          
+      
+      # Шаг 4: Установить зависимости
       - name: Install dependencies
         run: pnpm install
-        
+      
+      # Шаг 5: Запустить тесты (если есть)
+      - name: Run tests
+        run: pnpm test
+        continue-on-error: true  # Временно не проваливаем пайплайн, если тестов нет
+      
+      # Шаг 6: Собрать Docker образ
       - name: Build Docker image
         run: docker build -t onit-movie-tracker .
