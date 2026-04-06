@@ -8,7 +8,7 @@ RUN apt-get update -y && apt-get install -y openssl
 # Включаем pnpm
 RUN corepack enable
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
 # Устанавливаем зависимости
 RUN pnpm install --no-frozen-lockfile
